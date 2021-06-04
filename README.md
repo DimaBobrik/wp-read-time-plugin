@@ -33,7 +33,7 @@ Lorem ipsum text only for example. Lorem ipsum text only for example.<br>
 Plugin has the_reading_time and get_reading_time functions. <br>
 Functions can get's parameters like shortcode: <br>
 <br>
-get_reading_time(array(<br>
+the_reading_time(array(<br>
 'reading_time_text'        => 'The estimated reading time for this post is SSSS seconds',<br>
 'reading_time_speed'       => '500',<br>
 'reading_time_bar_color'   => 'red',<br>
