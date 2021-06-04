@@ -1,0 +1,1 @@
+# wp-read-time-plugin
