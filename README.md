@@ -9,6 +9,7 @@ Reading Time Plugin for wordpress,  plugin has shortcode with parameters and can
 <br>
 1.With parameters:
 <br>
+<br>
 [reading_time  <br>
 'reading_time_text' = 'The estimated reading time for this post is SSSS seconds' <br>
 'reading_time_speed' = '500'<br>
