@@ -4,30 +4,27 @@ Plugin Name: Custom Reading Time
 Description: The “Reading Time” value will be auto calculated according to the length of the content of the post.
 Author: Dima Bobrovski
 Version: 1.0
+Plugin URI: https://github.com/DimaBobrik/wp-read-time-plugin
 */
 
 add_filter( 'the_content', 'reading_time' );
 
 add_action( 'admin_menu', 'reading_time_menu' );
 
-
 function short_reading_time( $atts = array(), $content = false ) {
-
-	// set up default parameters
-	$shortcode_args = shortcode_atts( array(
-		'reading_time_text'        => 'The estimated reading time for this post is SSSS seconds',
-		'reading_time_speed'       => '200',
-		'reading_time_bar_color'   => 'blue',
-		'reading_time_bar_display' => 'yes',
-		'reading_time_minutes'     => 'no',
-		'reading_time_round'       => 'up',
-	), $atts );
-
-	if ( ! $content ) {
-		$time = reading_time( get_the_content(), $shortcode_args );
-	} else {
-		$time = reading_time( $content );
-	}
+	/** @var array default shortcode attributes. */
+	$shortcode_args = shortcode_atts(
+		array(
+			'reading_time_text'        => 'The estimated reading time for this post is SSSS seconds',
+			'reading_time_speed'       => '200',
+			'reading_time_bar_color'   => 'blue',
+			'reading_time_bar_display' => 'yes',
+			'reading_time_minutes'     => 'no',
+			'reading_time_round'       => 'up',
+		),
+		$atts
+	);
+	$time           = ! $content ? reading_time( get_the_content(), $shortcode_args ) : reading_time( $content );
 
 	return $time;
 }
@@ -40,17 +37,23 @@ function reading_time( $content, $reading_time_options = false ) {
 	if ( ! is_single() && ! is_page() ) {
 		return $content;
 	}
-	$shortcode_flag       = ! $reading_time_options;
+
+	/** @var boolean flag show reading time with content or without. */
+	$shortcode_flag = ! $reading_time_options;
+
+	/** @var array reading time attributes. */
 	$reading_time_options = ! $reading_time_options ? get_option( 'reading_time' ) : $reading_time_options;
 
-	// FIRST TRY TO GET ESTIMATED TIME FROM CUSTOM VALUES
+	/** @var integer first try to get estimated time from custom values. */
 	$tempo = get_post_custom_values( 'readingtime' );
+
 	if ( empty( $tempo ) || ! is_numeric( $tempo[0] ) ) {
-		// CALCULATE ESTIMATED TIME
+		/** calculate estimated time */
 		if ( ! is_numeric( $reading_time_options['reading_time_speed'] ) or $reading_time_options['reading_time_speed'] <= 0 ) {
-			// DEFAULT VALUE
+			/** Default value. */
 			$reading_time_options['reading_time_speed'] = 200;
 		}
+		/** Calculating Reading time and round up or down. */
 		$tempo[0] = round(
 			str_word_count( strip_tags( $content ) ) * 60 / $reading_time_options['reading_time_speed'],
 			0,
@@ -62,27 +65,31 @@ function reading_time( $content, $reading_time_options = false ) {
 		}
 	}
 	$default_reading_time = $tempo[0];
+
+	/** Calculating Reading time in minutes. */
 	$shown_reading_time = ( $reading_time_options['reading_time_minutes'] == 'yes' ) ? (int) ( $default_reading_time / 60 ) : $default_reading_time;
 
-	// COMPOSE TEXT MESSAGE
+	/** compose text message */
 	$text = $reading_time_options['reading_time_text'];
 	if ( $text == '' ) {
 		$text = 'I think you will spend SSSS seconds reading this post';
 	}
+	/** Replace SSSS to calculated reading time. */
 	$text = str_replace( 'SSSS', $shown_reading_time, $text );
 
 	$out = '<p class="readingtime_text">' . stripslashes( $text ) . '</p>';
 
-	// CHECK AGAINST 'NO' FOR BACKWARD COMPATIBILITY
+	/** check against 'yes' for backward compatibility */
 	if ( 'yes' === $reading_time_options['reading_time_bar_display'] ) {
-		// DISPLAY PROGRESS BAR
-		$post_id = get_queried_object()->ID;
+		/** display progress bar */
+		/** progress bar background color*/
 		$barcolor = $reading_time_options['reading_time_bar_color'];
 		if ( '' === $barcolor ) {
 			$barcolor = 'red';
 		}
-		$uniq_name = uniqid(null, false);
-		$out .= '
+		/** uniq string */
+		$uniq_name = uniqid( null, false );
+		$out       .= '
 				<style>
 					.readingtime_border { border:1px solid black;width:250px;height:10px; }
 					.readingtime_bar_' . $uniq_name . ' { background-color:' . $barcolor . ';width:0px;height:10px; }
@@ -96,9 +103,9 @@ function reading_time( $content, $reading_time_options = false ) {
 			
 				<script type="text/javascript">
 			jQuery(document).ready(function(){
-				   jQuery("#readingtime_bar_in_'. $uniq_name .' ").animate({
+				   jQuery("#readingtime_bar_in_' . $uniq_name . ' ").animate({
 				    width: "100%"
-				}, '. $shown_reading_time .' * 1000);
+				}, ' . $shown_reading_time . ' * 1000);
 				});				
 				</script>
 				';
@@ -108,6 +115,7 @@ function reading_time( $content, $reading_time_options = false ) {
 }
 
 function reading_time_menu() {
+	/** create option page in settings */
 	add_options_page(
 		'Reading Time Options',
 		'Reading Time',
@@ -119,13 +127,14 @@ function reading_time_menu() {
 
 function reading_time_options() {
 
-	//must check that the user has the required capability.
+	/**  must check that the user has the required capability. */
 	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.' ) );
 	}
 
-	// See if the user has posted us some information
+	/** See if the user has posted us some information */
 	if ( ! empty( $_POST ) ) {
+		/** Update Reading Time Options for admin panel */
 		update_option(
 			'reading_time',
 			array(
@@ -137,17 +146,17 @@ function reading_time_options() {
 				'reading_time_round'       => $_POST['reading_time_round'] ?? esc_html__( 'up' ),
 			)
 		);
-		// Put an settings updated message on the screen
+		/** Put an settings updated message on the screen */
 		?>
 		<div class="updated">
 			<p><strong><?php esc_html_e( 'Settings saved.', 'menu-test' ); ?></strong></p>
 		</div>
 		<?php
 	}
-	//GET STORED VALUES
+	/** get stored values */
 	$reading_time_options = get_option( 'reading_time' );
 	if ( false === $reading_time_options ) {
-		//OPTION NOT IN DATABASE, SO WE INSERT DEFAULT VALUES
+		/** insert default values */
 		add_option(
 			'reading_time',
 			array(
@@ -162,6 +171,7 @@ function reading_time_options() {
 		$reading_time_options = get_option( 'reading_time' );
 	}
 
+	/** chek select inputs values what was selected */
 	$sel_bar_yes = 'yes' === $reading_time_options['reading_time_bar_display'] ? 'selected="selected"' : '';
 	$sel_bar_no  = 'no' === $reading_time_options['reading_time_bar_display'] ? 'selected="selected"' : '';
 
@@ -172,10 +182,10 @@ function reading_time_options() {
 	$sel_minutes_no  = 'no' === $reading_time_options['reading_time_minutes'] ? 'selected="selected"' : '';
 
 	$plugin_url = plugin_dir_url( __FILE__ );
-
+	/** enqueue style for admin panel  */
 	wp_enqueue_style( 'reading-time-admin', $plugin_url . '/css/reading-time-admin.css', array(), filemtime( $plugin_url . '/css/reading-time-admin.css' ), false );
 
-	// SETTINGS FORM
+	/** settings form */
 	?>
 	<div class="wrap">
 		<h2>
@@ -245,14 +255,33 @@ function reading_time_options() {
 	<?php
 }
 
+/**
+ * Function the_reading_time array of parameters:
+ * 'reading_time_text'        => some text SSSS will changed to time
+ * 'reading_time_speed'       => 'time in integer default 200
+ * 'reading_time_bar_color'   => color can be hex code or decimal or like (green,rea,blue...)
+ * 'reading_time_bar_display' => yes/no
+ * 'reading_time_minutes'     => yes/no
+ * 'reading_time_round'       => up/down
+ */
 function the_reading_time( $params = false ) {
 	$default_args = ! $params ? get_option( 'reading_time' ) : $params;
-	$time = reading_time( get_the_content(), $default_args );
+	$time         = reading_time( get_the_content(), $default_args );
 	echo $time;
 }
 
+/**
+ * Function get_reading_time array of parameters:
+ * 'reading_time_text'        => some text SSSS will changed to time
+ * 'reading_time_speed'       => 'time in integer default 200
+ * 'reading_time_bar_color'   => color can be hex code or decimal or like (green,rea,blue...)
+ * 'reading_time_bar_display' => yes/no
+ * 'reading_time_minutes'     => yes/no
+ * 'reading_time_round'       => up/down
+ */
 function get_reading_time( $params = false ) {
 	$default_args = ! $params ? get_option( 'reading_time' ) : $params;
-	$time = reading_time( get_the_content(), $default_args );
+	$time         = reading_time( get_the_content(), $default_args );
+
 	return $time;
 }
