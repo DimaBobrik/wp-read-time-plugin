@@ -1,6 +1,7 @@
 # wp-reading-time-plugin
 Reading Time Plugin for wordpress, <br>
-work for post and page. <br>
+work for any post, page, custom_post_type, <br>
+has selection in what post_type show the plugin. <br>
 Plugin has shortcode with parameters and can worck in two ways :<br>
 'reading_time_text'        = can be any text SSSS will be thanget to time number<br>
 'reading_time_speed'       = '500' any number default 200<br>
