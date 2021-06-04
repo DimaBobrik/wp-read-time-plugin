@@ -1,5 +1,7 @@
 # wp-reading-time-plugin
-Reading Time Plugin for wordpress,  plugin has shortcode with parameters and can worck in two ways :<br>
+Reading Time Plugin for wordpress, <br>
+work for post and page.
+plugin has shortcode with parameters and can worck in two ways :<br>
 'reading_time_text'        = can be any text SSSS will be thanget to time number<br>
 'reading_time_speed'       = '500' any number default 200<br>
 'reading_time_bar_color'   = 'red' or any color can get in hex code or decimal (rgb)<br>
