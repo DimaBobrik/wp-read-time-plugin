@@ -32,17 +32,23 @@ function short_reading_time( $atts = array(), $content = false ) {
 add_shortcode( 'reading_time', 'short_reading_time' );
 
 function reading_time( $content, $reading_time_options = false ) {
-	// WORKS ONLY ON SINGLE POST
-
-	if ( ! is_single() && ! is_page() ) {
-		return $content;
-	}
 
 	/** @var boolean flag show reading time with content or without. */
 	$shortcode_flag = ! $reading_time_options;
 
 	/** @var array reading time attributes. */
 	$reading_time_options = ! $reading_time_options ? get_option( 'reading_time' ) : $reading_time_options;
+
+	/**
+	 * if current post_type exist in selected  post types.
+	 * Does not apply shortcode, the_reading_time, get_reading_time.
+	 */
+	$current_object = get_queried_object();
+	if ( ! empty( $current_object ) && isset( $current_object->post_type ) && isset( $reading_time_options['reading_time_post_types'] ) ) {
+		if ( ! in_array( $current_object->post_type, $reading_time_options['reading_time_post_types'] ) ) {
+			return $content;
+		}
+	}
 
 	/** @var integer first try to get estimated time from custom values. */
 	$tempo = get_post_custom_values( 'readingtime' );
@@ -144,6 +150,7 @@ function reading_time_options() {
 				'reading_time_bar_display' => $_POST['reading_time_bar_display'] ?? esc_html__( 'yes' ),
 				'reading_time_minutes'     => $_POST['reading_time_minutes'] ?? esc_html__( 'no' ),
 				'reading_time_round'       => $_POST['reading_time_round'] ?? esc_html__( 'up' ),
+				'reading_time_post_types'  => $_POST['reading_time_post_types'] ?? esc_html__( 'post' ),
 			)
 		);
 		/** Put an settings updated message on the screen */
@@ -166,6 +173,7 @@ function reading_time_options() {
 				'reading_time_bar_display' => 'yes',
 				'reading_time_minutes'     => 'no',
 				'reading_time_round'       => 'up',
+				'reading_time_post_types'  => 'post',
 			)
 		);
 		$reading_time_options = get_option( 'reading_time' );
@@ -183,7 +191,18 @@ function reading_time_options() {
 
 	$plugin_url = plugin_dir_url( __FILE__ );
 	/** enqueue style for admin panel  */
-	wp_enqueue_style( 'reading-time-admin', $plugin_url . '/css/reading-time-admin.css', array(), filemtime( $plugin_url . '/css/reading-time-admin.css' ), false );
+	wp_enqueue_style( 'reading-time-admin', $plugin_url . 'css/reading-time-admin.css', array(), filemtime( $plugin_url . 'css/reading-time-admin.css' ), false );
+
+	$args       = array(
+		'public' => true,
+	);
+	$output     = 'names'; // 'names' or 'objects' (default: 'names')
+	$operator   = 'and'; // 'and' or 'or' (default: 'and')
+	$post_types = get_post_types( $args, $output, $operator );
+	if ( in_array( 'attachment', $post_types ) ) {
+		unset( $post_types['attachment'] );
+	}
+
 
 	/** settings form */
 	?>
@@ -234,6 +253,19 @@ function reading_time_options() {
 					<option value="down" <?php echo esc_html__( $sel_bar_down ); ?>> <?php echo esc_html_e( 'round down', 'menu-test' ); ?></option>
 				</select>
 			</div>
+			<div class="input-holder">
+				<label for="reading_time_post_types"><?php echo esc_html__( "Accepted post types for showing plugin" ); ?>:</label>
+				<select name="reading_time_post_types[]" id="reading_time_post_types" multiple>
+					<?php foreach ( $post_types as $post_type ) {
+						$post_type_selected = '';
+						if ( is_array( $reading_time_options['reading_time_post_types'] ) && in_array( $post_type, $reading_time_options['reading_time_post_types'] ) ) {
+							$post_type_selected = 'selected="selected"';
+						}
+						?>
+						<option value="<?php echo $post_type; ?>" <?php echo $post_type_selected; ?>> <?php echo esc_html__( $post_type ); ?></option>
+					<?php } ?>
+				</select>
+			</div>
 
 			<div class="input-holder">
 				<label for="reading_time_minutes"><?php echo esc_html__( "Show minutes instead of seconds", 'menu-test' ); ?>
@@ -248,7 +280,7 @@ function reading_time_options() {
 			</div>
 			<div class="submit">
 				<input type="submit" name="Submit" class="button-primary"
-				       value="<?php echo esc_html__( 'Save Changes' ) ?>"/>
+				       value="<?php echo esc_html__( 'Save Changes' ); ?>"/>
 			</div>
 		</form>
 	</div>
@@ -266,8 +298,8 @@ function reading_time_options() {
  */
 function the_reading_time( $params = false ) {
 	$default_args = ! $params ? get_option( 'reading_time' ) : $params;
-	$time         = reading_time( get_the_content(), $default_args );
-	echo $time;
+	$reading_time = reading_time( get_the_content(), $default_args );
+	echo $reading_time;
 }
 
 /**
@@ -281,7 +313,7 @@ function the_reading_time( $params = false ) {
  */
 function get_reading_time( $params = false ) {
 	$default_args = ! $params ? get_option( 'reading_time' ) : $params;
-	$time         = reading_time( get_the_content(), $default_args );
+	$reading_time = reading_time( get_the_content(), $default_args );
 
-	return $time;
+	return $reading_time;
 }
