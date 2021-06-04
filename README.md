@@ -1,4 +1,4 @@
-# wp-read-time-plugin
+# wp-reading-time-plugin
 Reading Time Plugin for wordpress,  plugin has shortcode with parameters and can worck in two ways :<br>
 'reading_time_text'        = can be any text SSSS will be thanget to time number<br>
 'reading_time_speed'       = '500' any number default 200<br>
