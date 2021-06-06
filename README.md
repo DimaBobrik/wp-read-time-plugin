@@ -1,6 +1,7 @@
 # wp-reading-time-plugin
 <p>
 Reading Time Plugin for wordpress, work for any post, page, custom_post_type, has selection in what post_type show the plugin.
+Plugin has Localization, need create only .po files in languages folder like example.
 </p>
 Plugin has shortcode with parameters and can worck in two ways :<br>
 'reading_time_text'        = can be any text SSSS will be thanget to time number<br>
