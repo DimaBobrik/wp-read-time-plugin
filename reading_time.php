@@ -3,7 +3,7 @@
 Plugin Name: Custom Reading Time
 Description: The “Reading Time” value will be auto calculated according to the length of the content of the post.
 Author: Dima Bobrovski
-Version: 1.0
+Version: 9.0
 Plugin URI: https://github.com/DimaBobrik/wp-read-time-plugin
 */
 
@@ -70,19 +70,19 @@ function reading_time( $content, $reading_time_options = false ) {
 			return $content;
 		}
 	}
-	$default_reading_time = $tempo[0];
-
-	/** Calculating Reading time in minutes. */
-	$shown_reading_time = ( $reading_time_options['reading_time_minutes'] == 'yes' ) ? (int) ( $default_reading_time / 60 ) : $default_reading_time;
-
+	$shown_reading_time = $tempo[0];
 	/** compose text message */
 	$text = $reading_time_options['reading_time_text'];
-	if ( $text == '' ) {
+	if ( '' === $text ) {
 		$text = 'I think you will spend SSSS seconds reading this post';
+	}
+	/** Calculating Reading time in minutes. */
+	if ( 'yes' === $reading_time_options['reading_time_minutes'] ) {
+		$shown_reading_time = (int) ( $tempo[0] / 60 );
+		$text  = str_replace( 'seconds', 'minutes', $text );
 	}
 	/** Replace SSSS to calculated reading time. */
 	$text = str_replace( 'SSSS', $shown_reading_time, $text );
-
 	$out = '<p class="readingtime_text">' . stripslashes( $text ) . '</p>';
 
 	/** check against 'yes' for backward compatibility */
@@ -111,7 +111,7 @@ function reading_time( $content, $reading_time_options = false ) {
 			jQuery(document).ready(function(){
 				   jQuery("#readingtime_bar_in_' . $uniq_name . ' ").animate({
 				    width: "100%"
-				}, ' . $shown_reading_time . ' * 1000);
+				}, ' . $tempo[0] . ' * 1000);
 				});				
 				</script>
 				';
@@ -124,7 +124,7 @@ function reading_time_menu() {
 	/** create option page in settings */
 	add_options_page(
 		'Reading Time Options',
-		'Reading Time',
+		__( 'Reading Time', 'reading-time' ),
 		'manage_options',
 		'reading_time_options',
 		'reading_time_options',
@@ -156,7 +156,7 @@ function reading_time_options() {
 		/** Put an settings updated message on the screen */
 		?>
 		<div class="updated">
-			<p><strong><?php esc_html_e( 'Settings saved.', 'menu-test' ); ?></strong></p>
+			<p><strong><?php esc_html_e( 'Settings saved.', 'reading-time' ); ?></strong></p>
 		</div>
 		<?php
 	}
@@ -191,7 +191,7 @@ function reading_time_options() {
 
 	$plugin_url = plugin_dir_url( __FILE__ );
 	/** enqueue style for admin panel  */
-	wp_enqueue_style( 'reading-time-admin', $plugin_url . 'css/reading-time-admin.css', array(), filemtime( $plugin_url . 'css/reading-time-admin.css' ), false );
+	wp_enqueue_style( 'reading-time-admin', $plugin_url . 'css/reading-time-admin.css', array(), '1.0', false );
 
 	$args       = array(
 		'public' => true,
@@ -208,53 +208,54 @@ function reading_time_options() {
 	?>
 	<div class="wrap">
 		<h2>
-			<?php echo esc_html__( 'Reading Time', 'menu-test' ); ?>
+			<?php esc_html_e( 'Reading Time', 'reading-time' ); ?>
 		</h2>
 		<form name="form1" method="post" action="">
 			<div class="input-holder">
 				<label for="reading_time_text">
-					<?php esc_html_e( 'Text', 'menu-test' ); ?>:
+					<?php esc_html_e( 'Text', 'reading-time' ); ?>:
 				</label>
 				<textarea id="reading_time_text" name="reading_time_text" rows="2" cols="70">
-					<?php echo esc_html__( stripslashes( $reading_time_options['reading_time_text'] ) ); ?>
+					<?php esc_html_e( stripslashes( $reading_time_options['reading_time_text'] ), 'reading-time' ); ?>
 				</textarea>
 				<div class="description">
-					<?php esc_html_e( "Use 'SSSS' as a placeholder for seconds, e.g. 'The estimated reading time for this post is SSSS seconds'", 'menu-test' ); ?>
+					<?php esc_html_e( "Use 'SSSS' as a placeholder for seconds, e.g. 'The estimated reading time for this post is SSSS seconds'", 'reading-time' ); ?>
 				</div>
 			</div>
 			<div class="input-holder">
-				<label for="reading_time_speed"><?php echo esc_html__( 'Speed', 'menu-test' ); ?>:</label>
+				<label for="reading_time_speed"><?php esc_html_e( 'Speed', 'reading-time' ); ?>:</label>
 				<input type="text" name="reading_time_speed" id="reading_time_speed" size="20"
 				       value="<?php echo absint( $reading_time_options['reading_time_speed'] ); ?>"/>
 				<div class="description">
-					<?php _e( "E.g. 250 for fast readers, 150 for slow readers; the default value is 200", 'menu-test' ); ?>
+					<?php _e( "E.g. 250 for fast readers, 150 for slow readers; the default value is 200", 'reading-time' ); ?>
 				</div>
 			</div>
 			<div class="input-holder">
-				<label for="reading_time_bar_color"><?php echo esc_html__( 'Progress bar color', 'menu-test' ); ?>
+				<label for="reading_time_bar_color"><?php esc_html_e( 'Progress bar color', 'reading-time' ); ?>
 					:</label>
 				<input type="text" name="reading_time_bar_color" id="reading_time_bar_color" size="20"
 				       value="<?php echo $reading_time_options['reading_time_bar_color']; ?>"/>
-				<div class="description"><?php echo esc_html_e( "E.g. 'blue', '#006699'", 'menu-test' ); ?></div>
+				<div class="description"><?php echo esc_html_e( "E.g. 'blue', '#006699'", 'reading-time' ); ?></div>
 			</div>
 			<div class="input-holder">
-				<label for="reading_time_bar_display"><?php echo esc_html__( "Progress bar display", 'menu-test' ); ?>
+				<label for="reading_time_bar_display"><?php esc_html_e( "Progress bar display", 'reading-time' ); ?>
 					:</label>
 				<select name="reading_time_bar_display" id="reading_time_bar_display">
-					<option value="yes" <?php echo esc_html__( $sel_bar_yes ); ?>> <?php echo esc_html__( 'yes', 'menu-test' ); ?></option>
-					<option value="no" <?php echo esc_html__( $sel_bar_no ); ?>> <?php echo esc_html__( 'no', 'menu-test' ); ?></option>
+					<option value="yes" <?php esc_html_e( $sel_bar_yes ); ?>> <?php esc_html_e( 'yes', 'reading-time' ); ?></option>
+					<option value="no" <?php esc_html_e( $sel_bar_no ); ?>> <?php esc_html_e( 'no', 'reading-time' ); ?></option>
 				</select>
 			</div>
 			<div class="input-holder">
-				<label for="reading_time_round_up_down"><?php echo esc_html__( "Round Up/Down", 'menu-test' ); ?>
+				<label for="reading_time_round_up_down"><?php esc_html_e( "Round Up/Down", 'reading-time' ); ?>
 					:</label>
 				<select name="reading_time_round_up_down" id="reading_time_round_up_down">
-					<option value="up" <?php echo esc_html__( $sel_bar_up ); ?>> <?php echo esc_html__( 'round up', 'menu-test' ); ?></option>
-					<option value="down" <?php echo esc_html__( $sel_bar_down ); ?>> <?php echo esc_html_e( 'round down', 'menu-test' ); ?></option>
+					<option value="up" <?php esc_html_e( $sel_bar_up ); ?>> <?php esc_html_e( 'round up', 'reading-time' ); ?></option>
+					<option value="down" <?php esc_html_e( $sel_bar_down ); ?>> <?php echo esc_html_e( 'round down', 'reading-time' ); ?></option>
 				</select>
 			</div>
 			<div class="input-holder">
-				<label for="reading_time_post_types"><?php echo esc_html__( "Accepted post types for showing plugin" ); ?>:</label>
+				<label for="reading_time_post_types"><?php esc_html_e( "Accepted post types for showing plugin", 'reading-time' ); ?>
+					:</label>
 				<select name="reading_time_post_types[]" id="reading_time_post_types" multiple>
 					<?php foreach ( $post_types as $post_type ) {
 						$post_type_selected = '';
@@ -262,17 +263,17 @@ function reading_time_options() {
 							$post_type_selected = 'selected="selected"';
 						}
 						?>
-						<option value="<?php echo $post_type; ?>" <?php echo $post_type_selected; ?>> <?php echo esc_html__( $post_type ); ?></option>
+						<option value="<?php echo $post_type; ?>" <?php echo $post_type_selected; ?>> <?php esc_html_e( $post_type ); ?></option>
 					<?php } ?>
 				</select>
 			</div>
 
 			<div class="input-holder">
-				<label for="reading_time_minutes"><?php echo esc_html__( "Show minutes instead of seconds", 'menu-test' ); ?>
+				<label for="reading_time_minutes"><?php esc_html_e( "Show minutes instead of seconds", 'reading-time' ); ?>
 					:</label>
 				<select name="reading_time_minutes" id="reading_time_minutes">
-					<option value="yes" <?php echo esc_html__( $sel_minutes_yes ); ?>> <?php echo esc_html__( 'yes', 'menu-test' ); ?></option>
-					<option value="no" <?php echo esc_html__( $sel_minutes_no ); ?>> <?php echo esc_html__( 'no', 'menu-test' ); ?></option>
+					<option value="yes" <?php esc_html_e( $sel_minutes_yes, 'reading-time' ); ?>> <?php esc_html_e( 'yes', 'reading-time' ); ?></option>
+					<option value="no" <?php esc_html_e( $sel_minutes_no, 'reading-time' ); ?>> <?php esc_html_e( 'no', 'reading-time' ); ?></option>
 				</select>
 				<div class="description">If active, remember to change the text accordingly (e.g. "... SSSS minutes"
 					instead of "... SSSS seconds")
@@ -280,7 +281,7 @@ function reading_time_options() {
 			</div>
 			<div class="submit">
 				<input type="submit" name="Submit" class="button-primary"
-				       value="<?php echo esc_html__( 'Save Changes' ); ?>"/>
+				       value="<?php esc_html_e( 'Save Changes', 'reading-time' ); ?>"/>
 			</div>
 		</form>
 	</div>
@@ -317,3 +318,10 @@ function get_reading_time( $params = false ) {
 
 	return $reading_time;
 }
+
+/** Text Domain Localization */
+function custom_load_plugin_textdomain() {
+	load_plugin_textdomain( 'reading-time', false, basename( dirname( __FILE__ ) ) . '/languages/' );
+}
+
+add_action( 'plugins_loaded', 'custom_load_plugin_textdomain' );
