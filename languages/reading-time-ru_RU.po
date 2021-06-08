@@ -19,3 +19,50 @@ msgstr "Сохранить Изменения"
 
 msgid "Reading Time"
 msgstr "Время чтения"
+
+msgid "Free Text"
+msgstr "Свободный Текст"
+
+msgid "Use 'SSSS' as a placeholder for seconds, e.g. 'The estimated reading time for this post is SSSS seconds'"
+msgstr ""
+"Используйте 'SSSS' в качестве атрибута-placeholder для  секунд, например, 'Оценочное время чтения для этой записи SSSS "
+"секунд'"
+
+msgid "Speed"
+msgstr "Скорость"
+
+msgid "E.g. 250 for fast readers, 150 for slow readers; the default value is 200"
+msgstr "например, 250 для быстрых читателей, 150 для медленных читателей; значение по умолчанию составляет 200"
+
+msgid "Progress bar color"
+msgstr "Цвет прогресс-бара"
+
+msgid "Progress bar display"
+msgstr "Показывание бара \"Прогресс\""
+
+msgid "yes"
+msgstr "да"
+
+msgid "no"
+msgstr "нет"
+
+msgid "Round Up/Down"
+msgstr "Округление в верх/низ"
+
+msgid "round up"
+msgstr "округление в верх"
+
+msgid "round down"
+msgstr "округление в низ"
+
+msgid "E.g. 'blue', '#006699'"
+msgstr "Например, “Blue”, \"#006699\""
+
+msgid "Accepted post types for showing plugin"
+msgstr "Принятые ‘post-types’ для отображения плагина"
+
+msgid "Show minutes instead of seconds"
+msgstr "Показать минуты вместо секунд"
+
+msgid "If active, remember to change the text accordingly (e.g.... SSSS minutes instead of ... SSSS seconds)"
+msgstr "Если активен, не забудьте соответствующим образом изменить текст (например, «… SSSS минут» вместо «… SSSS секунд»)."
