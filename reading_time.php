@@ -79,11 +79,11 @@ function reading_time( $content, $reading_time_options = false ) {
 	/** Calculating Reading time in minutes. */
 	if ( 'yes' === $reading_time_options['reading_time_minutes'] ) {
 		$shown_reading_time = (int) ( $tempo[0] / 60 );
-		$text  = str_replace( 'seconds', 'minutes', $text );
+		$text               = str_replace( 'seconds', 'minutes', $text );
 	}
 	/** Replace SSSS to calculated reading time. */
 	$text = str_replace( 'SSSS', $shown_reading_time, $text );
-	$out = '<p class="readingtime_text">' . stripslashes( $text ) . '</p>';
+	$out  = '<p class="readingtime_text">' . stripslashes( $text ) . '</p>';
 
 	/** check against 'yes' for backward compatibility */
 	if ( 'yes' === $reading_time_options['reading_time_bar_display'] ) {
@@ -213,7 +213,7 @@ function reading_time_options() {
 		<form name="form1" method="post" action="">
 			<div class="input-holder">
 				<label for="reading_time_text">
-					<?php esc_html_e( 'Text', 'reading-time' ); ?>:
+					<?php esc_html_e( 'Free Text', 'reading-time' ); ?>:
 				</label>
 				<textarea id="reading_time_text" name="reading_time_text" rows="2" cols="70">
 					<?php esc_html_e( stripslashes( $reading_time_options['reading_time_text'] ), 'reading-time' ); ?>
@@ -275,8 +275,7 @@ function reading_time_options() {
 					<option value="yes" <?php esc_html_e( $sel_minutes_yes, 'reading-time' ); ?>> <?php esc_html_e( 'yes', 'reading-time' ); ?></option>
 					<option value="no" <?php esc_html_e( $sel_minutes_no, 'reading-time' ); ?>> <?php esc_html_e( 'no', 'reading-time' ); ?></option>
 				</select>
-				<div class="description">If active, remember to change the text accordingly (e.g. "... SSSS minutes"
-					instead of "... SSSS seconds")
+				<div class="description"><?php esc_html_e( 'If active, remember to change the text accordingly (e.g.... SSSS minutes instead of ... SSSS seconds)', 'reading-time' ); ?>
 				</div>
 			</div>
 			<div class="submit">
